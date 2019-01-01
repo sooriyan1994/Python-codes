@@ -13,4 +13,4 @@ def gradient_descent(X,y,theta, alpha, no_iters):
 
         J_history[i] = cost_fn(X,y,theta)
 
-    return J_history
+    return (theta,J_history)
