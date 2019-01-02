@@ -1,32 +1,55 @@
-#Opening the data file
-import matplotlib.pyplot as plt
+#importing libraries for plotting and matrix operations
+#import matplotlib.pyplot as plt
 import numpy as np
 
+#Opening the data file and reading data
 with open('ex1data1.txt') as fl:
     i=0;
     V = []
     for line in fl:
         line = line.translate(None, '\n')
-        V.append(line.split(','))
+        V.append(line.split(',')) #removing commas and storing the data
         i+= 1
 
-X = np.hstack([np.ones(len(V)),V[:,0]])
+#Plotting the training data
+#plt.plot(V[:,0],V[:,1],'rx')
+#plt.xlabel('Population in 10000s')
+#plt.ylabel('Price in 10000$')
+
+#adding bias column to X
+X = np.hstack([np.ones(len(V)),V[:,0]]) #.hstack is to add columns, similarly .vstack for rows
 y = V[:,1]
-no_iters = raw_input('Enter the number of iterations: ')
+
+#defining the other parameters
+no_iters = raw_input('Enter the number of iterations (1000~2000) : ')
 alpha = raw_input('Enter the learning rate (0.001~3) : ')
+
+#Initializing theta
 theta = np.zeros(2,1)
+J = cost_fn(X,y,theta)
 
+#GRADIENT DESCENT
+(theta, J_history) = gradient_descent(X, y, theta, alpha, no_iters)
 
-plt.plot(V[:,0],V[:,1],'rx')
-plt.xlabel('Population in 10000s')
+#plotting the results
+#plt.plot(X(:,2), X*theta, '-')
+#plt.legend('Training data', 'Linear regression')
 
+#Visualising J
+#theta0 = np.linspace(-10, 10, 100)
+#theta1 = np.linspace(-1, 4, 100)
 
+#Initialize J_vals to a matrix of zeros
+#J_vals = np.zeros(len(theta0), len(theta1))
 
+#for i in range(0,theta0):
+#    for j in range(0,theta1):
+#        t = [theta0[i], theta1[j]]
+#        J_vals = cost_fn(X, y, t)
 
-plt.plot(X(:,2), X*theta, '-')
-plt.legend('Training data', 'Linear regression')
+#plt.contour(theta0, theta1, J_vals)
+#plt.xlabel('\theta_0')
+#plt.ylabel('\theta_1')
 
-   
-    
 
 
