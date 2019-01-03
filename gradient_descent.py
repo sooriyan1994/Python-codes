@@ -9,8 +9,9 @@ def gradient_descent(X,y,theta, alpha, no_iters):
     for i in range(0,no_iters):
         for j in range(0,len(theta)):
             slope = float((sum(H - y)/m)) * X[j]
+        print slope
         theta = theta - alpha*slope
-
-        J_history[i] = cost_fn(X,y,theta)
+        print theta
+        J_history[i] = float(cost_fn(X,y,theta))
         
     return (theta,J_history)
