@@ -1,6 +1,8 @@
 #importing libraries for plotting and matrix operations
 #import matplotlib.pyplot as plt
 import numpy as np
+from linear_reg_cost_fn import cost_fn
+from gradient_descent import gradient_descent
 
 #Opening the data file and reading data
 with open('ex1data1.txt') as fl:
@@ -11,22 +13,25 @@ with open('ex1data1.txt') as fl:
         V.append(line.split(',')) #removing commas and storing the data
         i+= 1
 
+V = np.array(V, dtype = float)
+
 #Plotting the training data
 #plt.plot(V[:,0],V[:,1],'rx')
 #plt.xlabel('Population in 10000s')
 #plt.ylabel('Price in 10000$')
 
+
 #adding bias column to X
-X = np.hstack([np.ones(len(V)),V[:,0]]) #.hstack is to add columns, similarly .vstack for rows
-y = V[:,1]
+X = np.vstack(([np.ones(len(V)),V[:,0]])).transpose() #.hstack is to add columns, similarly .vstack for rows
+y = V[:,1].reshape((len(V),1))
 
 #defining the other parameters
-no_iters = raw_input('Enter the number of iterations (1000~2000) : ')
-alpha = raw_input('Enter the learning rate (0.001~3) : ')
+no_iters = int(raw_input('Enter the number of iterations (1000~2000) : '))
+alpha = float(raw_input('Enter the learning rate (0.001~3) : '))
 
 #Initializing theta
-theta = np.zeros(2,1)
-J = cost_fn(X,y,theta)
+theta = np.zeros([2,1],dtype= float)
+J = float(cost_fn(X,y,theta))
 
 #GRADIENT DESCENT
 (theta, J_history) = gradient_descent(X, y, theta, alpha, no_iters)
@@ -50,6 +55,3 @@ J = cost_fn(X,y,theta)
 #plt.contour(theta0, theta1, J_vals)
 #plt.xlabel('\theta_0')
 #plt.ylabel('\theta_1')
-
-
-
