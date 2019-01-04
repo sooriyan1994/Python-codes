@@ -47,11 +47,13 @@ J = float(cost_fn(X,y,theta))
 #Initialize J_vals to a matrix of zeros
 #J_vals = np.zeros(len(theta0), len(theta1))
 
+#Generating the cost function values at the mesh points
 #for i in range(0,theta0):
 #    for j in range(0,theta1):
 #        t = [theta0[i], theta1[j]]
 #        J_vals = cost_fn(X, y, t)
 
+#CONTOUR PLOT TO VISUALIZE J
 #plt.contour(theta0, theta1, J_vals)
 #plt.xlabel('\theta_0')
 #plt.ylabel('\theta_1')
