@@ -4,7 +4,7 @@ def gradient_descent(X,y,theta, alpha, no_iters):
     m = len(y); 
     J_history = np.zeros([no_iters, 1]);
 
-    for i in range(0,no_iters):
+    for i in range(no_iters):
         H = X.dot(theta);
         slope = np.transpose(X).dot(H - y)/m
         theta = theta - alpha*slope
