@@ -3,7 +3,7 @@
 import numpy as np
 import scipy.optimize as op
 #import matplotlib.pyplot as plt
-from logistic_reg_cost_fn import cost_fn, gradient_descent
+from logistic_reg_cost_fn import cost_fn, gradient_descent, predict
 
 #Opening the data file and reading data
 with open('ex2data1.txt') as fl:
@@ -19,26 +19,31 @@ X = V[:,range(2)].reshape((len(V),2)) #.hstack is to add columns, similarly .vst
 y = V[:,2].reshape((len(V),1))
 
 #visualising the two features
-pos = np.where(y == 1)
-neg = np.where(y == 0)
+#pos = np.where(y == 1)
+#neg = np.where(y == 0)
 #plt.plot(X[pos,0], X[pos,1], 'yo', X[neg,0], X[neg,1], 'rx')
 #plt.xlabel('Exam 1 score')
 #plt.ylabel('Exam 2 score')
 #plt.legend('Admitted', ' Not Admitted')
 
 #adding the bias term to the data
-X_b = np.hstack((np.ones([len(V),1]),X))
+X = np.hstack((np.ones((len(V),1)),X))
 
 #Initializing theta
-init_theta = np.zeros(([len(X_b[2]),1]),dtype = float)
+init_theta = np.zeros(((len(X[2]),1)),dtype = float)
 
-cost = cost_fn(init_theta, X_b, y)
-slope = gradient_descent(init_theta, X_b, y)
-print slope
+cost = cost_fn(init_theta, X, y)
+slope = gradient_descent(init_theta, X, y)
 
-theta_opt = op.fmin(cost_fn, x0 = init_theta, args = (X_b, y))
-print theta_opt
 #ADVANCED OPTIMISATION TECHNIQUE
-#theta_op = op.minimize(cost_fn, x0 = init_theta, args = (X_b, y))
-print theta_op
+opt_result = op.fmin_tnc(cost_fn, x0 = init_theta.flatten(), fprime = gradient_descent, args=(X, y.flatten()))
+theta = np.array(opt_result[0])
 
+#Using Newton-CG optimization technique
+theta_opt = op.minimize(cost_fn, x0 = init_theta.flatten(), args = (X, y.flatten()),method = 'Newton-CG', jac = gradient_descent)
+
+#PREDICTION ACCURACY
+p = predict(theta, X, y)
+pred = (p == y) * 1
+Accuracy = np.mean(pred)*100
+print 'Accuracy of the model is ',Accuracy
