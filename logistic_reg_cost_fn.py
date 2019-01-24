@@ -30,3 +30,21 @@ def predict(theta, X, y):
     p[np.where(H>=0.5)] = 1
 
     return p
+
+def cost_fn_reg(theta, X, y, lamda):
+
+    m = len(y)
+    J = 0
+
+    H = sigmoid(X.dot(theta))
+    J = np.sum(-np.log(H)*(y) - np.log(1-H)*(1-y))/m + np.sum(theta**2)*(lamda/2*m)
+    return J
+
+def gradient_descent_reg(theta, X, y, lamda):
+
+    H = sigmoid(X.dot(theta))
+    m = len(y)
+    
+    #Gradient Descent
+    slope = (np.transpose(X).dot(H - y) + lamda*theta)/m
+    return slope
