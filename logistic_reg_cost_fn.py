@@ -36,7 +36,7 @@ def cost_fn_reg(theta, X, y, lamda):
     m = len(y)
     J = 0
 
-    H = sigmoid(X.dot(theta))
+    H = np.array(sigmoid(X.dot(theta))).reshape(len(X),1)
     J = np.sum(-np.log(H)*(y) - np.log(1-H)*(1-y))/m + np.sum(theta**2)*(lamda/2*m)
     return J
 
