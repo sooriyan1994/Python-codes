@@ -32,3 +32,11 @@ coord = np.array(coord)
 
 for i in range(len(coord)):
     plt.plot(coord[i,0],coord[i,1],'go')
+
+OA_x = [0,a/2]
+OA_y = [0,0]
+OA_coeff = np.polyfit(OA_x,OA_y,1)
+OA = np.poly1d(OA_coeff)
+OA_xaxis = np.linspace(0,a/2,11)
+OA_yaxis = OA(OA_xaxis)
+plt.plot(OA_xaxis,OA_yaxis)
