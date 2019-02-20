@@ -1,5 +1,5 @@
 import numpy as np
-#from parameters import edge_length
+from parameters import edge_length
 
 a = 10
 
@@ -49,14 +49,15 @@ EG = geompy.MakeLineTwoPnt(E, G)
 GH = geompy.MakeLineTwoPnt(G, H)
 HB = geompy.MakeLineTwoPnt(H, B)
 
-Extrusion_1 = geompy.MakePrismVecH(AB, OZ, 10)
-Extrusion_2 = geompy.MakePrismVecH(BC, OZ, 10)
-Extrusion_3 = geompy.MakePrismVecH(CD, OZ, 10)
-Extrusion_4 = geompy.MakePrismVecH(DE, OZ, 10)
-Extrusion_5 = geompy.MakePrismVecH(EF, OZ, 10)
-Extrusion_6 = geompy.MakePrismVecH(EG, OZ, 10)
-Extrusion_7 = geompy.MakePrismVecH(GH, OZ, 10)
-Extrusion_8 = geompy.MakePrismVecH(HB, OZ, 10)
+#FUSING AND EXTRUSION
+Fuse_1 = geompy.MakeFuseList([AB, BC, CD, DE, EF, EG, GH, HB], True, True)
+Extrusion_1 = geompy.MakePrismVecH(Fuse_1, OZ, 10)
+
+#CREATING A GROUP ~ helps in boundary conditions
+fix_line = geompy.CreateGroup(Extrusion_1, geompy.ShapeType["EDGE"])
+geompy.UnionIDs(fix_line, [4])
+load_line = geompy.CreateGroup(Extrusion_1, geompy.ShapeType["EDGE"])
+geompy.UnionIDs(load_line, [35])
 
 #Adding all the points and line to the study
 geompy.addToStudy( O, 'O' )
@@ -79,14 +80,65 @@ geompy.addToStudy( EF, 'EF' )
 geompy.addToStudy( EG, 'EG' )
 geompy.addToStudy( GH, 'GH' )
 geompy.addToStudy( HB, 'HB' )
+geompy.addToStudy( Fuse_1, 'Fuse_1' )
 geompy.addToStudy( Extrusion_1, 'Extrusion_1' )
-geompy.addToStudy( Extrusion_2, 'Extrusion_2' )
-geompy.addToStudy( Extrusion_3, 'Extrusion_3' )
-geompy.addToStudy( Extrusion_4, 'Extrusion_4' )
-geompy.addToStudy( Extrusion_5, 'Extrusion_5' )
-geompy.addToStudy( Extrusion_6, 'Extrusion_6' )
-geompy.addToStudy( Extrusion_7, 'Extrusion_7' )
-geompy.addToStudy( Extrusion_8, 'Extrusion_8' )
+geompy.addToStudyInFather( Extrusion_1, fix_line, 'fix_line' )
+geompy.addToStudyInFather( Extrusion_1, load_line, 'load_line' )
+
+###MESH MODULE
+
+#INTIALISING
+import  SMESH, SALOMEDS
+from salome.smesh import smeshBuilder
+
+#CREATING A STUDY AND MESHING A PART
+smesh = smeshBuilder.New(theStudy)
+Mesh_1 = smesh.Mesh(Extrusion_1)
+
+#Specifying the mesh hypothesis and the mesh type
+NETGEN_1D_2D = Mesh_1.Triangle(algo=smeshBuilder.NETGEN_1D2D)
+
+#MESH PARAMETERS
+NETGEN_2D_Parameters_1 = NETGEN_1D_2D.Parameters()
+NETGEN_2D_Parameters_1.SetMaxSize( 3.5 )
+NETGEN_2D_Parameters_1.SetSecondOrder( 0 )
+NETGEN_2D_Parameters_1.SetOptimize( 1 )
+NETGEN_2D_Parameters_1.SetFineness( 2 )
+NETGEN_2D_Parameters_1.SetChordalError( 0.1 )
+NETGEN_2D_Parameters_1.SetChordalErrorEnabled( 0 )
+NETGEN_2D_Parameters_1.SetMinSize( 1 )
+NETGEN_2D_Parameters_1.SetUseSurfaceCurvature( 1 )
+NETGEN_2D_Parameters_1.SetFuseEdges( 1 )
+NETGEN_2D_Parameters_1.SetQuadAllowed( 0 )
+isDone = Mesh_1.Compute() #MESHING
+
+#Creating Groups on Geometry after meshing
+fix_line_1 = Mesh_1.GroupOnGeom(fix_line,'fix_line',SMESH.EDGE)
+load_line_1 = Mesh_1.GroupOnGeom(load_line,'load_line',SMESH.EDGE)
+fix_line_2 = Mesh_1.GroupOnGeom(fix_line,'fix_line',SMESH.NODE)
+load_line_2 = Mesh_1.GroupOnGeom(load_line,'load_line',SMESH.NODE)
+smesh.SetName(Mesh_1, 'hex_mesh')
+
+try:
+  Mesh_1.ExportMED( r'/home/u1449908/Salome_files/hex_mesh.med', 0, SMESH.MED_V2_2, 1, None ,1)
+  pass
+except:
+  print 'ExportToMEDX() failed. Invalid file name?'
+
+###WHATS THIS??????????????????????????
+([Mesh_1_1], status) = smesh.CreateMeshesFromMED(r'/home/u1449908/Salome_files/hex_mesh.med')
+[ load_line_3, fix_line_3, fix_line_4, load_line_4 ] = Mesh_1_1.GetGroups()
+
+###THIS TOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO!!!!!!!!!!!!!!
+## Set names of Mesh objects
+smesh.SetName(NETGEN_1D_2D.GetAlgorithm(), 'NETGEN 1D-2D')
+smesh.SetName(NETGEN_2D_Parameters_1, 'NETGEN 2D Parameters_1')
+smesh.SetName(load_line_1, 'load_line')
+smesh.SetName(fix_line_1, 'fix_line')
+smesh.SetName(Mesh_1.GetMesh(), 'hex_mesh')
+smesh.SetName(load_line_2, 'load_line')
+smesh.SetName(fix_line_2, 'fix_line')
+
 
 #FOR GUI
 if salome.sg.hasDesktop():
