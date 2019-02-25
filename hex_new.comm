@@ -1,0 +1,43 @@
+DEBUT()
+
+mesh = LIRE_MAILLAGE(FORMAT='MED', UNITE=20)
+
+model = AFFE_MODELE(
+    AFFE=_F(MODELISATION=('DKT', ), PHENOMENE='MECANIQUE', TOUT='OUI'),
+    MAILLAGE=mesh
+)
+
+elempro0 = AFFE_CARA_ELEM(
+    COQUE=_F(EPAIS=0.01, GROUP_MA=('Group_1', )), MODELE=model
+)
+
+Steel = DEFI_MATERIAU(ELAS=_F(E=210000.0, NU=0.3))
+
+fieldmat = AFFE_MATERIAU(AFFE=_F(MATER=(Steel, ), TOUT='OUI'), MODELE=model)
+
+load = AFFE_CHAR_MECA(
+    DDL_IMPO=_F(DX=0.0, DY=0.0, DZ=0.0, GROUP_MA=('fix_line', )),
+    FORCE_COQUE=_F(FX=-10.0, GROUP_MA=('load_line', )),
+    MODELE=model
+)
+
+reslin = MECA_STATIQUE(
+    CARA_ELEM=elempro0,
+    CHAM_MATER=fieldmat,
+    EXCIT=_F(CHARGE=load),
+    MODELE=model
+)
+
+reslin = CALC_CHAMP(
+    reuse=reslin,
+    CARA_ELEM=elempro0,
+    CHAM_MATER=fieldmat,
+    CONTRAINTE=('SIGM_ELGA', 'SIPM_ELNO'),
+    CRITERES=('SIEQ_ELGA', ),
+    MODELE=model,
+    RESULTAT=reslin
+)
+
+IMPR_RESU(FORMAT='MED', RESU=_F(RESULTAT=reslin), UNITE=80)
+
+FIN()
