@@ -16,8 +16,8 @@ Steel = DEFI_MATERIAU(ELAS=_F(E=210000.0, NU=0.3))
 fieldmat = AFFE_MATERIAU(AFFE=_F(MATER=(Steel, ), TOUT='OUI'), MODELE=model)
 
 load = AFFE_CHAR_MECA(
-    DDL_IMPO=_F(DX=0.0, DY=0.0, DZ=0.0, GROUP_MA=('fix_line', )),
-    FORCE_COQUE=_F(FX=-10.0, GROUP_MA=('load_line', )),
+    DDL_IMPO=_F(GROUP_MA=('fix_line', ), LIAISON='ENCASTRE'),
+    FORCE_NODALE=_F(FX=10000.0, GROUP_NO=('load_line', )),
     MODELE=model
 )
 
@@ -32,12 +32,12 @@ reslin = CALC_CHAMP(
     reuse=reslin,
     CARA_ELEM=elempro0,
     CHAM_MATER=fieldmat,
-    CONTRAINTE=('SIGM_ELGA', 'SIPM_ELNO'),
+    CONTRAINTE=('SIGM_ELGA', 'SIGM_ELNO'),
     CRITERES=('SIEQ_ELGA', ),
     MODELE=model,
     RESULTAT=reslin
 )
 
-IMPR_RESU(FORMAT='MED', RESU=_F(RESULTAT=reslin), UNITE=80)
+IMPR_RESU(FORMAT='MED', RESU=_F(CARA_ELEM=elempro0, RESULTAT=reslin), UNITE=80)
 
 FIN()
